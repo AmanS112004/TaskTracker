@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTasks } from "../hooks/useTasks.js";
 import { getRelativeDueDate } from "../utils/dateFormatter.js";
@@ -9,11 +9,44 @@ const TaskCard = ({ task }) => {
   const { updateExistingTask, setActiveTask, setIsDrawerOpen, setTaskToDelete, setIsDeleteModalOpen } = useTasks();
   
   const cardRef = useRef(null);
+  const scrollIntervalRef = useRef(null);
   const [touchOffset, setTouchOffset] = useState({ x: 0, y: 0 });
   const [isTouchDragging, setIsTouchDragging] = useState(false);
 
   const priorityConfig = theme.priority[task.priority] || theme.priority.Medium;
   const { text: dueText, colorClass: dueColor } = getRelativeDueDate(task.dueDate);
+
+  const stopAutoScroll = () => {
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+  };
+
+  const handleAutoScroll = (clientY) => {
+    const edgeSize = 100;
+    const speed = 10;
+
+    if (clientY < edgeSize) {
+      if (!scrollIntervalRef.current) {
+        scrollIntervalRef.current = setInterval(() => {
+          window.scrollBy(0, -speed);
+        }, 16);
+      }
+    } else if (window.innerHeight - clientY < edgeSize) {
+      if (!scrollIntervalRef.current) {
+        scrollIntervalRef.current = setInterval(() => {
+          window.scrollBy(0, speed);
+        }, 16);
+      }
+    } else {
+      stopAutoScroll();
+    }
+  };
+
+  useEffect(() => {
+    return () => stopAutoScroll();
+  }, []);
 
   const handleDragStart = (e) => {
     e.dataTransfer.setData("text/plain", task._id);
@@ -33,12 +66,14 @@ const TaskCard = ({ task }) => {
     const deltaX = touch.clientX - parseFloat(cardRef.current.dataset.startX);
     const deltaY = touch.clientY - parseFloat(cardRef.current.dataset.startY);
     setTouchOffset({ x: deltaX, y: deltaY });
+    handleAutoScroll(touch.clientY);
   };
 
   const handleTouchEnd = (e) => {
     if (!isTouchDragging) return;
     setIsTouchDragging(false);
     setTouchOffset({ x: 0, y: 0 });
+    stopAutoScroll();
 
     const touch = e.changedTouches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);

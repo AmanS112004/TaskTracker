@@ -9,6 +9,7 @@ const TaskCard = ({ task }) => {
   const { updateExistingTask, setActiveTask, setIsDrawerOpen, setTaskToDelete, setIsDeleteModalOpen } = useTasks();
   
   const cardRef = useRef(null);
+  const floatingRef = useRef(null);
   const scrollIntervalRef = useRef(null);
   
   const [touchPos, setTouchPos] = useState({ x: 0, y: 0 });
@@ -77,10 +78,13 @@ const TaskCard = ({ task }) => {
     const dragOffsetY = parseFloat(cardRef.current.dataset.dragOffsetY);
     const deltaY = touch.clientY - parseFloat(cardRef.current.dataset.startY);
     
-    setTouchPos({
-      x: touch.clientX - dragOffsetX,
-      y: touch.clientY - dragOffsetY
-    });
+    const newX = touch.clientX - dragOffsetX;
+    const newY = touch.clientY - dragOffsetY;
+    
+    if (floatingRef.current) {
+      floatingRef.current.style.left = `${newX}px`;
+      floatingRef.current.style.top = `${newY}px`;
+    }
     
     handleAutoScroll(touch.clientY, deltaY);
   };
@@ -113,46 +117,12 @@ const TaskCard = ({ task }) => {
     setIsDeleteModalOpen(true);
   };
 
-  return (
-    <>
-      {isTouchDragging && (
-        <div className="border-2 border-dashed border-black/15 bg-black/5 rounded-2xl min-h-[115px] pointer-events-none" />
-      )}
-      <motion.div
-        ref={cardRef}
-        layout={!isTouchDragging}
-        draggable
-        onDragStart={handleDragStart}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onClick={handleCardClick}
-        whileHover={{ 
-          y: -4, 
-          scale: 1.01,
-          transition: { type: "spring", stiffness: 450, damping: 20 } 
-        }}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.25 }}
-        className="relative pl-4 pr-3.5 py-4 bg-[var(--color-surface)] hover:bg-[var(--color-hover)] border border-white/5 hover:border-zinc-800 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-colors duration-300 group flex flex-col justify-between min-h-[115px] select-none"
-        style={{
-          boxShadow: isTouchDragging 
-            ? "0 25px 50px -12px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)" 
-            : "inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.2)",
-          position: isTouchDragging ? "fixed" : "static",
-          left: isTouchDragging ? `${touchPos.x}px` : "auto",
-          top: isTouchDragging ? `${touchPos.y}px` : "auto",
-          width: isTouchDragging ? `${cardDims.width}px` : "auto",
-          height: isTouchDragging ? `${cardDims.height}px` : "auto",
-          zIndex: isTouchDragging ? 100 : "auto",
-          touchAction: "none"
-        }}
-      >
+  const renderCardContents = (isGhost = false) => {
+    return (
+      <>
         <div className={`absolute left-0 top-0 bottom-0 w-[4px] ${priorityConfig.accentClass}`} />
 
-        {task.status === "Completed" && !isTouchDragging && (
+        {task.status === "Completed" && !isGhost && (
           <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
@@ -210,8 +180,70 @@ const TaskCard = ({ task }) => {
             </button>
           </div>
         </div>
-      </motion.div>
-    </>
+      </>
+    );
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      layout={!isTouchDragging}
+      draggable
+      onDragStart={handleDragStart}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleCardClick}
+      whileHover={{ 
+        y: -4, 
+        scale: 1.01,
+        transition: { type: "spring", stiffness: 450, damping: 20 } 
+      }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.25 }}
+      className={`relative rounded-2xl cursor-grab active:cursor-grabbing transition-colors duration-300 group flex flex-col justify-between min-h-[115px] select-none ${
+        isTouchDragging 
+          ? "overflow-visible bg-transparent border-transparent" 
+          : "pl-4 pr-3.5 py-4 bg-[var(--color-surface)] hover:bg-[var(--color-hover)] border border-white/5 hover:border-zinc-800 overflow-hidden"
+      }`}
+      style={{
+        boxShadow: isTouchDragging 
+          ? "none" 
+          : "inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.2)",
+        touchAction: "none",
+        transform: isTouchDragging ? "none" : undefined
+      }}
+    >
+      {isTouchDragging ? (
+        <>
+          <div className="absolute inset-0 border-2 border-dashed border-black/15 bg-black/5 rounded-2xl pointer-events-none z-0" />
+          <div
+            ref={floatingRef}
+            style={{
+              position: "fixed",
+              left: `${touchPos.x}px`,
+              top: `${touchPos.y}px`,
+              width: `${cardDims.width}px`,
+              height: `${cardDims.height}px`,
+              transform: "scale(1.04)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
+              background: "var(--color-surface)",
+              border: "1px solid rgba(0, 0, 0, 0.08)",
+              borderRadius: "16px",
+              zIndex: 9999,
+              pointerEvents: "none"
+            }}
+            className="pl-4 pr-3.5 py-4 flex flex-col justify-between overflow-hidden"
+          >
+            {renderCardContents(true)}
+          </div>
+        </>
+      ) : (
+        renderCardContents(false)
+      )}
+    </motion.div>
   );
 };
 

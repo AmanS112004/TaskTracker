@@ -25,14 +25,14 @@ const BoardColumn = ({ title, status, tasks, onDragOver, onDrop, gridSpan }) => 
         </h3>
       </div>
 
-      <div className="flex-1 flex flex-col gap-3.5 overflow-y-auto pt-1.5 pb-2 pr-1.5 pl-0.5">
+      <div className="flex-1 flex flex-col gap-3.5 overflow-y-auto pt-1.5 pb-2 pr-1.5 pl-0.5 relative">
         <AnimatePresence mode="popLayout">
           {tasks.map((task) => (
             <TaskCard key={task._id} task={task} />
           ))}
         </AnimatePresence>
         {tasks.length === 0 && (
-          <div className="flex-1 flex items-center justify-center border-2 border-dashed border-black/15 rounded-2xl min-h-[140px] text-[9px] uppercase font-black tracking-widest text-[#23354C]/85">
+          <div className="absolute inset-x-0.5 inset-y-1.5 flex items-center justify-center border-2 border-dashed border-black/15 rounded-2xl text-[9px] uppercase font-black tracking-widest text-[#23354C]/85 bg-transparent pointer-events-none">
             Drop tasks here
           </div>
         )}

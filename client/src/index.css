@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #ECE7D8;
+  --color-surface: #D8D0BE;
+  --color-hover: #C9C1B0;
+  --color-primary: #E26343;
+  --color-accent: #E26343;
+  --color-text: #E26343;
+  --color-text-secondary: #334A6A;
+  --color-dark: #5D594D;
+  --color-hero: #EFE5C8;
+  --color-input: #F6F2E8;
+  --font-mono: 'Geist Mono', monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-secondary);
+    font-family: 'Inter', sans-serif;
+    background-image: 
+      radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.04)),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel {
+  background: rgba(239, 229, 200, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.glass-card {
+  background: var(--color-surface);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: var(--color-hover);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.glass-input {
+  background: var(--color-input);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  color: var(--color-text-secondary);
+}
+
+.glass-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(226, 99, 67, 0.1);
+}

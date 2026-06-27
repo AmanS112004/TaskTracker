@@ -41,7 +41,7 @@ const HeroIllustration = () => {
             <motion.circle
               cx="200"
               cy="200"
-              r="0"
+              initial={{ r: 0 }}
               animate={{ r: 240 }}
               transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
             />

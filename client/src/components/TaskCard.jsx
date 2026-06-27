@@ -67,16 +67,27 @@ const TaskCard = ({ task }) => {
     
     setTouchPos({ x: rect.left, y: rect.top });
     setCardDims({ width: rect.width, height: rect.height });
-    setIsTouchDragging(true);
   };
 
   const handleTouchMove = (e) => {
-    if (!isTouchDragging) return;
     const touch = e.touches[0];
+    const startX = parseFloat(cardRef.current.dataset.startX || touch.clientX);
+    const startY = parseFloat(cardRef.current.dataset.startY || touch.clientY);
+    
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (!isTouchDragging) {
+      if (distance > 8) {
+        setIsTouchDragging(true);
+      } else {
+        return;
+      }
+    }
     
     const dragOffsetX = parseFloat(cardRef.current.dataset.dragOffsetX);
     const dragOffsetY = parseFloat(cardRef.current.dataset.dragOffsetY);
-    const deltaY = touch.clientY - parseFloat(cardRef.current.dataset.startY);
     
     const newX = touch.clientX - dragOffsetX;
     const newY = touch.clientY - dragOffsetY;
@@ -90,9 +101,9 @@ const TaskCard = ({ task }) => {
   };
 
   const handleTouchEnd = (e) => {
+    stopAutoScroll();
     if (!isTouchDragging) return;
     setIsTouchDragging(false);
-    stopAutoScroll();
 
     const touch = e.changedTouches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);

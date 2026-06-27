@@ -23,17 +23,17 @@ const TaskCard = ({ task }) => {
     }
   };
 
-  const handleAutoScroll = (clientY) => {
-    const edgeSize = 100;
-    const speed = 10;
+  const handleAutoScroll = (clientY, deltaY) => {
+    const edgeSize = 85;
+    const speed = 8;
 
-    if (clientY < edgeSize) {
+    if (clientY < edgeSize && deltaY < -10) {
       if (!scrollIntervalRef.current) {
         scrollIntervalRef.current = setInterval(() => {
           window.scrollBy(0, -speed);
         }, 16);
       }
-    } else if (window.innerHeight - clientY < edgeSize) {
+    } else if (window.innerHeight - clientY < edgeSize && deltaY > 10) {
       if (!scrollIntervalRef.current) {
         scrollIntervalRef.current = setInterval(() => {
           window.scrollBy(0, speed);
@@ -66,7 +66,7 @@ const TaskCard = ({ task }) => {
     const deltaX = touch.clientX - parseFloat(cardRef.current.dataset.startX);
     const deltaY = touch.clientY - parseFloat(cardRef.current.dataset.startY);
     setTouchOffset({ x: deltaX, y: deltaY });
-    handleAutoScroll(touch.clientY);
+    handleAutoScroll(touch.clientY, deltaY);
   };
 
   const handleTouchEnd = (e) => {
@@ -119,9 +119,11 @@ const TaskCard = ({ task }) => {
       transition={{ duration: 0.25 }}
       className="relative pl-4 pr-3.5 py-4 bg-[var(--color-surface)] hover:bg-[var(--color-hover)] border border-white/5 hover:border-zinc-800 rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-colors duration-300 group flex flex-col justify-between min-h-[115px] select-none"
       style={{
-        boxShadow: "inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.2)",
+        boxShadow: isTouchDragging 
+          ? "0 25px 50px -12px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)" 
+          : "inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.2)",
         transform: isTouchDragging 
-          ? `translate3d(${touchOffset.x}px, ${touchOffset.y}px, 0)` 
+          ? `translate3d(${touchOffset.x}px, ${touchOffset.y}px, 0) scale(1.04)` 
           : "none",
         zIndex: isTouchDragging ? 50 : "auto",
         position: isTouchDragging ? "relative" : "static",

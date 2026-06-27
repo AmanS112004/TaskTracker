@@ -3,7 +3,11 @@ import axios from "axios";
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+let API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+if (API_URL && !API_URL.endsWith("/api")) {
+  API_URL = `${API_URL}/api`;
+}
+console.log("Using API_URL inside AuthContext:", API_URL);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

@@ -1,94 +1,93 @@
-# TaskTracker — Premium Editorial Workspace
+# TaskTracker
 
-TaskTracker is a handcrafted, single-viewport developer workspace designed for builders who value clarity over clutter. It features a warm minimalist editorial design, native user authentication, dynamic SVG mask transitions, a slow-drifting tactile background, real-time activity feeds, and a spotlight command interface.
+A personal task workspace I built because every other tool I tried was either too bloated or too ugly. TaskTracker fits entirely in one viewport, looks good doing it, and gets out of your way.
 
----
-
-## Key Features
-
-1. **Single-Viewport Layout (100vh)**: Fits entirely within one viewport on desktop. Absolutely no vertical or horizontal scrollbars. Every component adjusts dynamically to maximize density.
-2. **Tactile Three.js Backdrop**: Drift layers representing slow-floating translucent paper sheets on a warm cream canvas, drawing inspiration from minimal Japanese graphic design.
-3. **ProteinLens-Style SVG Transitions**: 
-   - Swapping between Login and Sign Up cards fires an absolute wave mask sweep across the auth column, morphing components cleanly.
-   - Submitting forms expands the action button into a fullscreen clip-path circle overlay that mounts the dashboard seamlessly.
-4. **Self-Drawing SVG Hero**: Custom inline vector illustration that draws its outline, expands circular masks to reveal column grids, and floats task cards into place sequentially.
-5. **Zero-Dependency Security Backend**: Native cryptography library PBKDF2 SHA-512 password hashers and custom HS256 JWT tokens. Avoids binary compilation compile errors during workspace setup.
-6. **Multi-Tenant Isolation**: The task database schema links directly to user references, isolating boards, stats, and timelines strictly by account.
-7. **Keystroke-Responsive Substring Search**: Case-insensitive regular expression query matches (`$regex`) matching partial search phrases instantly on typing, coupled with a 250ms input debouncer to prevent request queues.
-8. **Curved Dropdowns**: Replaced native HTML select menus with custom React dropdown overlay components (`rounded-2xl` options card wrappers, `rounded-xl` hover choices) for a clean visual design.
-9. **Recent Activity Feed**: Tracks and displays board activities (created, updated, completed, deleted, and restored tasks) dynamically.
-10. **Humanized Relative Dates**: Parsed due date badges showing human expressions relative to today (e.g. `Due Today` in amber, `Tomorrow` in green, `Overdue by X days` in red).
-11. **Undo Actions**: Delete action triggers a React Hot Toast notice containing an undo button to restore tasks optimistic.
+Built with React, Node.js, MongoDB, and a lot of stubbornness about the details.
 
 ---
 
-## Folder Structure
+## What it does
+
+- **One screen, no scroll** — the entire dashboard lives within 100vh on desktop. No hidden panels, no sidebars that push things around.
+- **Drag and drop on mobile** — touch-native card movement with a floating clone, ghost placeholder, and auto-scroll near screen edges. Zero re-renders during the drag so it actually feels smooth.
+- **Real accounts** — register, log in, your tasks are yours only. Passwords hashed with PBKDF2 SHA-512, sessions signed with HS256 JWT. No third-party auth libraries.
+- **Search that actually works** — type a partial word and it finds it. Regex-backed `$regex` queries on the backend, debounced 250ms on the frontend so it doesn't hammer the server on every keystroke.
+- **Activity feed** — a running log of everything that happened on your board: created, updated, completed, deleted, restored.
+- **Undo deletes** — accidentally trashed a task? There's a toast notification with an undo button. Click it within a few seconds and it comes back.
+- **Human due dates** — instead of `2026-06-28`, cards show `Due Today`, `Tomorrow`, `In 3 days`, or `Overdue by 2 days` with color-coded badges.
+- **Custom dropdowns** — the Status and Priority selectors are hand-built React components. No native `<select>` anywhere in sight.
+
+---
+
+## The design
+
+Warm cream background, dark editorial type, a slow-drifting backdrop of translucent paper layers. The auth page has an SVG wave mask that sweeps across when you switch between login and signup. Submitting the form expands the button into a fullscreen circle that transitions into your dashboard.
+
+There's also a self-drawing SVG on the landing page — it traces its own outline, reveals the column grid through an expanding circular mask, then floats the task cards in one by one.
+
+---
+
+## Folder structure
 
 ```
 TaskTracker/
 ├── client/
-│   ├── src/
-│   │   ├── components/    # Small UI component modules
-│   │   │   ├── ActivityFeed.jsx
-│   │   │   ├── CommandPalette.jsx
-│   │   │   ├── CustomSelect.jsx      # Curved dropdown overlay
-│   │   │   ├── DeleteModal.jsx
-│   │   │   ├── EmptyState.jsx
-│   │   │   ├── HeroIllustration.jsx  # Self-drawing animated SVG
-│   │   │   ├── LoadingSkeleton.jsx
-│   │   │   ├── MeshGradientBackground.jsx # Floating paper sheets
-│   │   │   ├── SearchBar.jsx         # Debounced filters
-│   │   │   ├── StatsDashboard.jsx    # Compact statistics
-│   │   │   ├── TaskBoard.jsx         # Padding hover fixes
-│   │   │   ├── TaskCard.jsx          # Mobile touch drag-and-drop
-│   │   │   └── TaskDrawer.jsx        # Controller-bound dropdowns
-│   │   ├── context/       
-│   │   │   ├── AuthContext.jsx       # Delayed session state hook
-│   │   │   └── TaskContext.jsx       
-│   │   ├── hooks/         # useTasks, useCountUp custom hooks
-│   │   ├── layouts/       # MainLayout.jsx structure
-│   │   ├── pages/         
-│   │   │   └── AuthPage.jsx          # Split viewport auth landing
-│   │   ├── services/      # API axios interceptors
-│   │   ├── utils/         # Relative due date helper
-│   │   ├── index.css      # Editorial styling tokens
-│   │   ├── App.jsx        # Route protection
-│   │   └── main.jsx       
-│   ├── package.json
-│   └── ...
+│   └── src/
+│       ├── components/
+│       │   ├── ActivityFeed.jsx
+│       │   ├── CommandPalette.jsx
+│       │   ├── CustomSelect.jsx          # hand-rolled dropdown
+│       │   ├── DeleteModal.jsx
+│       │   ├── EmptyState.jsx
+│       │   ├── HeroIllustration.jsx      # self-drawing SVG
+│       │   ├── LoadingSkeleton.jsx
+│       │   ├── MeshGradientBackground.jsx
+│       │   ├── SearchBar.jsx
+│       │   ├── StatsDashboard.jsx
+│       │   ├── TaskBoard.jsx
+│       │   ├── TaskCard.jsx              # mobile touch drag
+│       │   └── TaskDrawer.jsx
+│       ├── context/
+│       │   ├── AuthContext.jsx
+│       │   └── TaskContext.jsx
+│       ├── hooks/
+│       ├── layouts/
+│       ├── pages/
+│       │   └── AuthPage.jsx
+│       ├── services/
+│       └── utils/
 ├── backend/
-│   ├── config/            # Database connection handler
-│   ├── controllers/       # Auth and Task controller hooks
-│   ├── middleware/        # JWT verifications & errors
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
 │   │   ├── authMiddleware.js
 │   │   ├── errorHandler.js
 │   │   └── rateLimiter.js
-│   ├── models/            
-│   │   ├── User.js        # Workspace schema
-│   │   └── Task.js        # User references and indexes
-│   ├── routes/            # Express route endpoints
-│   ├── services/          # Task database query helpers
-│   ├── utils/             # Password and JWT crypto helpers
+│   ├── models/
+│   │   ├── User.js
+│   │   └── Task.js
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
 │   │   ├── apiResponse.js
-│   │   └── cryptoHelper.js
-│   ├── validators/        # Express-validator schemas
-│   ├── tests/             # Jest & supertest integration files
-│   ├── server.js          
-│   └── package.json
+│   │   └── cryptoHelper.js              # PBKDF2 + JWT, no libraries
+│   ├── validators/
+│   ├── tests/
+│   └── server.js
 └── README.md
 ```
 
 ---
 
-## Database Schema
+## Data models
 
 ```mermaid
 classDiagram
   class User {
     +ObjectId _id
     +String name
-    +String email [Unique]
-    +String password [PBKDF2 Hashed]
+    +String email
+    +String password
     +String workspaceName
     +Date createdAt
   }
@@ -97,63 +96,79 @@ classDiagram
     +ObjectId _id
     +String title
     +String description
-    +String status [Todo | In Progress | Completed]
-    +String priority [High | Medium | Low]
+    +String status
+    +String priority
     +Date dueDate
-    +ObjectId user [Reference to User]
+    +ObjectId user
     +Date createdAt
   }
+
+  User "1" --> "many" Task
 ```
 
 ---
 
-## API Endpoints
+## API
 
-### 🔑 Authentication Endpoints
+### Auth
 
-| Method | Endpoint | Description | Payload Keys |
-| :--- | :--- | :--- | :--- |
-| **POST** | `/api/auth/register` | Create user workspace | `name`, `email`, `password`, `workspaceName` |
-| **POST** | `/api/auth/login` | Log in to workspace | `email`, `password` |
+| Method | Route | What it does |
+| --- | --- | --- |
+| POST | `/api/auth/register` | Create a new account |
+| POST | `/api/auth/login` | Get a session token |
 
-### 📋 Task Endpoints (Protected)
-*Requires header: `Authorization: Bearer <token>`*
+### Tasks (need `Authorization: Bearer <token>`)
 
-| Method | Endpoint | Description | Query Parameters |
-| :--- | :--- | :--- | :--- |
-| **GET** | `/api/tasks` | Get all isolated tasks | `status`, `priority`, `search`, `sortBy`, `sortOrder` |
-| **GET** | `/api/tasks/stats` | Count of isolated tasks | None |
-| **GET** | `/api/tasks/:id` | Get single task | None |
-| **POST** | `/api/tasks` | Create task | Form payload |
-| **PUT** | `/api/tasks/:id` | Update task details | Form payload |
-| **DELETE** | `/api/tasks/:id` | Remove task | None |
+| Method | Route | What it does |
+| --- | --- | --- |
+| GET | `/api/tasks` | Fetch tasks — filterable by status, priority, search, sort |
+| GET | `/api/tasks/stats` | Counts by status |
+| GET | `/api/tasks/:id` | Single task |
+| POST | `/api/tasks` | Create task |
+| PUT | `/api/tasks/:id` | Update task |
+| DELETE | `/api/tasks/:id` | Delete task |
 
 ---
 
-## Installation & Setup
+## Running locally
 
-### 1. Prerequisites
-- Node.js (v18 or higher)
-- MongoDB instance (Local community server or Atlas clusters)
+You need Node.js v18+ and a MongoDB instance (local or Atlas).
 
-### 2. Environment Configurations
-Create `.env` inside `backend/`:
+**Backend**
+
+Create `backend/.env`:
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secure_random_jwt_secret
+JWT_SECRET=pick_something_long_and_random
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-### 3. Running Project Backend
-1. Enter `backend/` directory.
-2. Install dependencies: `npm install`.
-3. Start development server: `npm run dev`.
-4. Run integration test suite: `npm test`.
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-### 4. Running Project Client
-1. Enter `client/` directory.
-2. Install dependencies: `npm install`.
-3. Start development server: `npm run dev`.
-4. Navigate browser to: `http://localhost:5173`.
+To run the test suite:
+```bash
+npm test
+```
+
+**Frontend**
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+---
+
+## Deployed
+
+- Frontend: [tasktracker-aman.netlify.app](https://tasktracker-aman.netlify.app)
+- Backend: [tasktracker-fakr.onrender.com](https://tasktracker-fakr.onrender.com)

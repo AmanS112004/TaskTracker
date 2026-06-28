@@ -218,7 +218,7 @@ const TaskDrawer = () => {
                   <input
                     type="date"
                     {...register("dueDate")}
-                    className="w-full glass-input rounded-xl px-4 py-2.5 text-[var(--color-text)] text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]/30 [color-scheme:dark] font-medium"
+                    className="w-full glass-input rounded-xl px-4 py-2.5 text-[var(--color-text)] text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]/30 [color-scheme:light] font-medium"
                   />
                 </div>
 

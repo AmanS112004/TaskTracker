@@ -213,7 +213,7 @@ const TaskDrawer = () => {
 
                 <div className="space-y-1">
                   <label className="text-[9px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" /> Due Date
+                    <Calendar className="w-3.5 h-3.5 text-[var(--color-text)]" /> Due Date
                   </label>
                   <input
                     type="date"
